@@ -15,12 +15,13 @@ from .client import FederatedClient
 from .exceptions import DataLoadingError, DataValidationError
 
 # Immutable tuple of required columns for the label
-REQUIRED_COLS = ("Label",)  # adjust if your Kaggle CSV uses a different label name
+REQUIRED_COLS = ("attack",)  # CYBRIA dataset uses "attack" column
 
 
 def load_cybria_base(csv_path: str | Path) -> pd.DataFrame:
     """
     Load the base CYBRIA CSV and perform minimal validation.
+    Converts the "attack" column to a binary "Label" column (0=normal, 1=attack).
     """
     csv_path = Path(csv_path)
     if not csv_path.exists():
@@ -35,7 +36,14 @@ def load_cybria_base(csv_path: str | Path) -> pd.DataFrame:
     if missing:
         raise DataValidationError(f"Missing required columns: {missing}")
 
-    # Simple cleaning: drop rows with missing labels
+    # Convert attack column to binary Label column
+    # Empty/null values or "normal" = 0 (normal traffic)
+    # Any attack type = 1 (attack)
+    df["Label"] = df["attack"].apply(
+        lambda x: 0 if pd.isna(x) or str(x).strip() == "" or str(x).strip().lower() == "normal" else 1
+    )
+
+    # Drop rows where we couldn't determine the label (shouldn't happen, but safety check)
     df = df.dropna(subset=["Label"])
 
     return df
