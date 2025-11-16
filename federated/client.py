@@ -4,12 +4,16 @@ Client module: defines the FederatedClient class using logistic regression.
 
 from __future__ import annotations
 
+import warnings
 from typing import List
 
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+
+# Suppress FutureWarning about DataFrame.swapaxes (deprecated in pandas)
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*swapaxes.*")
 
 from .utils import batch_generator
 

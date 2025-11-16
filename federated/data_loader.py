@@ -4,12 +4,16 @@ Data loading and preprocessing for the CYBRIA IoT FL dataset.
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+
+# Suppress FutureWarning about DataFrame.swapaxes (deprecated in pandas)
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*swapaxes.*")
 
 from .client import FederatedClient
 from .exceptions import DataLoadingError, DataValidationError
