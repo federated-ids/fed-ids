@@ -21,7 +21,11 @@ class FederatedClient:
 
     def __init__(self, client_id: str, data: pd.DataFrame, feature_cols: List[str], label_col: str) -> None:
         self.client_id = client_id
-        self.X = data[feature_cols].values.astype(float)
+        # Convert feature columns to numeric, handling errors
+        X_df = data[feature_cols].apply(pd.to_numeric, errors='coerce')
+        # Replace NaN and inf values with 0
+        X_df = X_df.replace([np.inf, -np.inf], np.nan).fillna(0)
+        self.X = X_df.values.astype(float)
         self.y = data[label_col].values.astype(int)
         self.model = LogisticRegression(
             max_iter=200,

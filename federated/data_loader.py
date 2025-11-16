@@ -53,12 +53,26 @@ def select_feature_columns(df: pd.DataFrame, max_features: int = 20) -> List[str
     """
     Select a subset of numeric feature columns from the dataset.
     """
+    # Get columns that are numeric types
     numeric_cols = [
         col
         for col, dtype in df.dtypes.items()
         if ("float" in str(dtype) or "int" in str(dtype)) and col != "Label"
     ]
-    feature_cols = numeric_cols[:max_features]
+    
+    # Filter out columns that can't be converted to numeric (have non-numeric values)
+    valid_cols = []
+    for col in numeric_cols:
+        try:
+            # Try to convert to numeric, coercing errors to NaN
+            pd.to_numeric(df[col], errors='coerce')
+            # Check if column has at least some valid numeric values
+            if not df[col].isna().all():
+                valid_cols.append(col)
+        except Exception:
+            continue
+    
+    feature_cols = valid_cols[:max_features]
     return feature_cols
 
 
@@ -97,8 +111,20 @@ def make_centralized_train_test(
     """
     Build a centralized train/test split for baseline comparison.
     """
-    X = df[feature_cols].values.astype(float)
+    # Convert feature columns to numeric, coercing errors to NaN
+    X = df[feature_cols].apply(pd.to_numeric, errors='coerce')
+    
+    # Replace NaN and inf values with 0 (or could use median/mean imputation)
+    X = X.replace([np.inf, -np.inf], np.nan).fillna(0)
+    
+    # Convert to numpy array
+    X = X.values.astype(float)
     y = df[label_col].values.astype(int)
+    
+    # Remove rows where all features are NaN/zero (shouldn't happen, but safety check)
+    valid_rows = ~np.isnan(X).all(axis=1)
+    X = X[valid_rows]
+    y = y[valid_rows]
 
     return train_test_split(X, y, test_size=test_size, random_state=42, stratify=y)
 
