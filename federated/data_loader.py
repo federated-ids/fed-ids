@@ -28,7 +28,7 @@ def load_cybria_base(csv_path: str | Path) -> pd.DataFrame:
         raise DataLoadingError(f"CYBRIA CSV not found at: {csv_path}")
 
     try:
-        df = pd.read_csv(csv_path)
+        df = pd.read_csv(csv_path, low_memory=False)
     except Exception as exc:
         raise DataLoadingError(f"Failed to read CSV: {csv_path}") from exc
 
