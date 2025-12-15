@@ -70,6 +70,90 @@ class FederatedServer:
 
         self.global_params = total / len(params_list)
 
+    def aggregate_median(self) -> None:
+        """
+        Federated Median - coordinate-wise median for robustness against outliers.
+        More robust to Byzantine failures than FedAvg.
+        """
+        params_list = [c.get_model_params() for c in self.clients]
+        
+        # Stack all coefficients and intercepts
+        coef_stack = np.stack([p.coef for p in params_list], axis=0)
+        intercept_stack = np.stack([p.intercept for p in params_list], axis=0)
+        
+        # Compute coordinate-wise median
+        median_coef = np.median(coef_stack, axis=0)
+        median_intercept = np.median(intercept_stack, axis=0)
+        
+        from .server import ModelParams
+        self.global_params = ModelParams(coef=median_coef, intercept=median_intercept)
+
+
+    def aggregate_trimmed_mean(self, trim_ratio: float = 0.1) -> None:
+        """
+        Federated Trimmed Mean - removes extreme values before averaging.
+        Robust to outliers while maintaining averaging properties.
+        
+        Args:
+            trim_ratio: Fraction of extreme values to remove from each side (0 to 0.5)
+        """
+        if not 0 <= trim_ratio < 0.5:
+            raise ValueError("trim_ratio must be in [0, 0.5)")
+        
+        params_list = [c.get_model_params() for c in self.clients]
+        n_clients = len(params_list)
+        n_trim = int(n_clients * trim_ratio)
+        
+        if n_clients - 2 * n_trim < 1:
+            warnings.warn("Too few clients after trimming, using all clients")
+            n_trim = 0
+        
+        # Stack parameters
+        coef_stack = np.stack([p.coef for p in params_list], axis=0)
+        intercept_stack = np.stack([p.intercept for p in params_list], axis=0)
+        
+        # Sort along client axis and trim
+        coef_sorted = np.sort(coef_stack, axis=0)
+        intercept_sorted = np.sort(intercept_stack, axis=0)
+        
+        if n_trim > 0:
+            coef_trimmed = coef_sorted[n_trim:-n_trim]
+            intercept_trimmed = intercept_sorted[n_trim:-n_trim]
+        else:
+            coef_trimmed = coef_sorted
+            intercept_trimmed = intercept_sorted
+        
+        # Mean of trimmed values
+        trimmed_coef = np.mean(coef_trimmed, axis=0)
+        trimmed_intercept = np.mean(intercept_trimmed, axis=0)
+        
+        from .server import ModelParams
+        self.global_params = ModelParams(coef=trimmed_coef, intercept=trimmed_intercept)
+
+
+    def aggregate_weighted(self, client_weights: list[float]) -> None:
+        """
+        Weighted Federated Averaging - weight clients by data size or importance.
+        
+        Args:
+            client_weights: Weight for each client (e.g., number of samples)
+        """
+        if len(client_weights) != len(self.clients):
+            raise ValueError("Number of weights must match number of clients")
+        
+        params_list = [c.get_model_params() for c in self.clients]
+        
+        # Normalize weights
+        total_weight = sum(client_weights)
+        normalized_weights = [w / total_weight for w in client_weights]
+        
+        # Weighted sum
+        weighted_coef = sum(w * p.coef for w, p in zip(normalized_weights, params_list))
+        weighted_intercept = sum(w * p.intercept for w, p in zip(normalized_weights, params_list))
+        
+        from .server import ModelParams
+        self.global_params = ModelParams(coef=weighted_coef, intercept=weighted_intercept)
+    
     def broadcast(self) -> None:
         """
         Broadcast the global model to all clients.
