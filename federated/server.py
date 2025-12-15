@@ -164,16 +164,32 @@ class FederatedServer:
         for client in self.clients:
             client.set_model_params(self.global_params)
 
-    def run_training(self, num_rounds: int = 3) -> None:
+    def run_training(self, num_rounds: int = 3, aggregation_fn: str = 'aggregate') -> None:
         """
-        Simple federated training loop using while + if.
+        Federated training loop with configurable aggregation.
+        
+        Args:
+            num_rounds: Number of training rounds
+            aggregation_fn: Name of aggregation method to use. Options:
+                        - 'aggregate' (default FedAvg)
+                        - 'aggregate_median'
+                        - 'aggregate_trimmed_mean'
+                        - 'aggregate_weighted'
+        
+        Examples:
+            server.run_training(num_rounds=5)  # FedAvg
+            server.run_training(num_rounds=5, aggregation_fn='aggregate_median')
+            server.run_training(num_rounds=5, aggregation_fn='aggregate_weighted')
         """
+        # Get the aggregation method by name
+        agg_fn = getattr(self, aggregation_fn)
+        
         current_round = 0
         while current_round < num_rounds:
             for client in self.clients:
                 client.train_local_model()
 
-            self.aggregate()
+            agg_fn()
             self.broadcast()
 
             accuracies = [client.evaluate() for client in self.clients]
