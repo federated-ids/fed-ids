@@ -131,17 +131,14 @@ class FederatedServer:
         self.global_params = ModelParams(coef=trimmed_coef, intercept=trimmed_intercept)
 
 
-    def aggregate_weighted(self, client_weights: list[float]) -> None:
+    def aggregate_weighted(self) -> None:
         """
-        Weighted Federated Averaging - weight clients by data size or importance.
-        
-        Args:
-            client_weights: Weight for each client (e.g., number of samples)
+        Weighted Federated Averaging - automatically weights clients by data size.
         """
-        if len(client_weights) != len(self.clients):
-            raise ValueError("Number of weights must match number of clients")
-        
         params_list = [c.get_model_params() for c in self.clients]
+        
+        # Automatically use data size as weights
+        client_weights = [len(c.y) for c in self.clients]
         
         # Normalize weights
         total_weight = sum(client_weights)
@@ -151,7 +148,6 @@ class FederatedServer:
         weighted_coef = sum(w * p.coef for w, p in zip(normalized_weights, params_list))
         weighted_intercept = sum(w * p.intercept for w, p in zip(normalized_weights, params_list))
         
-        from .server import ModelParams
         self.global_params = ModelParams(coef=weighted_coef, intercept=weighted_intercept)
     
     def broadcast(self) -> None:
