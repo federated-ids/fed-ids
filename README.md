@@ -1,4 +1,5 @@
 # Federated Learning for IoT Intrusion Detection (CYBRIA)
+A federated learning framework for intrusion detection, demonstrating privacy-preserving model training on distributed network traffic datasets using the CYBRIA IoT dataset.
 
 ## Team Members
 - Dustin Haggett - dhaggett@stevens.edu
@@ -22,7 +23,6 @@
 - Fixed bugs in the weighted aggregation code
 - Added examples in the notebook showing how to use the different aggregation strategies
 
-A federated learning framework for intrusion detection, demonstrating privacy-preserving model training on distributed network traffic datasets using the CYBRIA IoT dataset.
 
 ## Project Overview
 
