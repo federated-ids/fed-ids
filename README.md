@@ -1,5 +1,27 @@
 # Federated Learning for IoT Intrusion Detection (CYBRIA)
 
+## Team Members
+- Dustin Haggett - dhaggett@stevens.edu
+- Mateusz Marciniak - mmarcin1@stevens.edu
+
+## Main Contributions
+
+### Dustin Haggett
+- Set up the initial project structure and built the core federated learning framework
+- Wrote the main modules: `client.py`, `server.py`, `data_loader.py`, `utils.py`, and `exceptions.py`
+- Created the test suite with pytest for `test_federated.py`
+- Built the initial `main.ipynb` notebook with the federated learning workflow
+- Wrote the README and set up `requirements.txt`
+- Fixed bugs in the client and data loader code
+
+### Mateusz Marciniak
+- Did the initial research and came up with the project idea and requirements
+- Added EDA visualizations to explore the dataset in the notebook
+- Implemented the advanced aggregation methods (median, trimmed mean, weighted) in the server
+- Made the training configurable so you can switch between different aggregation methods
+- Fixed bugs in the weighted aggregation code
+- Added examples in the notebook showing how to use the different aggregation strategies
+
 A federated learning framework for intrusion detection, demonstrating privacy-preserving model training on distributed network traffic datasets using the CYBRIA IoT dataset.
 
 ## Project Overview
