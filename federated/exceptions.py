@@ -1,5 +1,5 @@
 """
-Custom exception types used in the federated IDS project.
+Custom exceptions for data loading and validation issues.
 """
 
 

@@ -1,5 +1,6 @@
 """
-Client module: defines the FederatedClient class using logistic regression.
+Client-side logic for federated learning.
+Each client trains a local logistic regression model on its own data shard.
 """
 
 # Test Comment, sample push and branch merch
@@ -22,7 +23,7 @@ from .utils import batch_generator
 
 class FederatedClient:
     """
-    Represents one federated learning client with local IoT traffic data.
+    Represents one federated learning client that trains on a local subset of the dataset.
     """
 
     def __init__(self, client_id: str, data: pd.DataFrame, feature_cols: List[str], label_col: str) -> None:
