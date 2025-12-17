@@ -8,11 +8,8 @@ A federated learning framework for intrusion detection, demonstrating privacy-pr
 ## Main Contributions
 
 ### Dustin Haggett
-- Set up the initial project structure and built the core federated learning framework
-- Wrote the main modules: `client.py`, `server.py`, `data_loader.py`, `utils.py`, and `exceptions.py`
-- Created the test suite with pytest for `test_federated.py`
-- Built the initial `main.ipynb` notebook with the federated learning workflow
-- Wrote the README and set up `requirements.txt`
+- Set up the initial project structure and README
+- Drafted the main modules
 - Fixed bugs in the client and data loader code
 
 ### Mateusz Marciniak
