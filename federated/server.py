@@ -1,5 +1,6 @@
 """
-Server module: defines ModelParams and FederatedServer classes.
+Server-side logic for coordinating federated training
+and aggregating client models each round.
 """
 
 from __future__ import annotations
@@ -51,7 +52,8 @@ class ModelParams:
 
 class FederatedServer:
     """
-    Coordinates federated training over multiple clients.
+    Handles federated training rounds and combines client models
+    into a shared global model.
     """
 
     def __init__(self, clients: List[FederatedClient]) -> None:
